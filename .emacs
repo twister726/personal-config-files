@@ -97,9 +97,11 @@
 (setq c-default-style "stroustrup")
 
 ;; FM Emacs Mode
-(load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm-c-mode.el"))
-(load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/p4.el"))
-(load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm.el"))
+(if (getenv "VOB_ROOT")
+    (progn (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm-c-mode.el"))
+	   (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/p4.el"))
+	   (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm.el")))
+    (print "Could not find Formality files"))
 
 ;; Auto-refresh dired on file change
 (add-hook 'dired-mode-hook 'auto-revert-mode)
@@ -130,7 +132,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (global-set-key (kbd "C-x C-h") 'hlt-unhighlight-region)
 (global-set-key (kbd "C-x H") 'hlt-highlight-symbol)
 
-;; Buffer list - switch to other window by default
+;; Buffer list - switch to other window by default with C-x C-b
 (defun my/buffer-list-and-switch ()
   "Open buffer list in other window and switch to it automatically"
   (interactive)
