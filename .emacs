@@ -210,6 +210,9 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Term mode TAB completion
+(define-key term-mode-map (kbd "TAB") 'term-dynamic-complete)
+
 ;; Change file backup directory
 (setq backup-directory-alist '(("." . "~/.emacs_saves")))
 
