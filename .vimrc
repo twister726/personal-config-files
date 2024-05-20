@@ -10,6 +10,7 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'ervandew/supertab'
+Plugin 'townk/vim-autoclose'
 " Plugin 'preservim/nerdtree'
 
 " The following are examples of different formats supported.

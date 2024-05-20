@@ -1,8 +1,7 @@
 ;; SOUR TODO -
-;; 1. Make a function which searches and highlights a given word. It should unhighlight all other highlights first.
-;; 2. In term-mode, make keybindings to easily switch between char mode and evil insert mode, to line mode and evil normal mode.
+;; 1. In term-mode, make keybindings to easily switch between char mode and evil insert mode, to line mode and evil normal mode.
 ;;    ie when I'm in char mode, it should do Esc -> C-c C-j and when I'm in line mode it should do C-c C-k G A
-;; 3. Make a function which does M-x term and immediately M-x rename-buffer
+;; 2. Make a function which does M-x term and immediately M-x rename-buffer
 
 (require 'misc)
 
@@ -41,6 +40,10 @@
 ;; Evil packages
 (require 'evil-visualstar) ; To search selection with *
 (global-evil-visualstar-mode t)
+
+;; Evil keybindings
+(define-key evil-normal-state-map (kbd "C-r") 'isearch-backward)
+(define-key evil-normal-state-map (kbd "M-u") 'evil-redo)
 
 ;; Scroll half page instead of full page
 (autoload 'View-scroll-half-page-forward "view")
@@ -97,11 +100,9 @@
 (setq c-default-style "stroustrup")
 
 ;; FM Emacs Mode
-(if (getenv "VOB_ROOT")
-    (progn (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm-c-mode.el"))
-	   (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/p4.el"))
-	   (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm.el")))
-    (print "Could not find Formality files"))
+(load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm-c-mode.el"))
+(load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/p4.el"))
+(load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm.el"))
 
 ;; Auto-refresh dired on file change
 (add-hook 'dired-mode-hook 'auto-revert-mode)
@@ -119,26 +120,45 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (unhighlight-regexp t))
 (define-key search-map "hU" #'my/unhighlight-all-in-buffer)
 
-;; Highlight.el
-(defun my/unhighlight-then-highlight-regexp ()
-  "Unhighlight all highlights then highlight given regexp"
-  (hlt-unhighlight-region)
-  (interactive)
-  (call-interactively 'hlt-highlight-regexp-region))
-(global-set-key (kbd "M-p") 'hlt-previous-highlight)
-(global-set-key (kbd "M-n") 'hlt-next-highlight)
-;; (global-set-key (kbd "C-x h") 'hlt-highlight-regexp-region)
-(global-set-key (kbd "C-x h") 'my/unhighlight-then-highlight-regexp)
-(global-set-key (kbd "C-x C-h") 'hlt-unhighlight-region)
-(global-set-key (kbd "C-x H") 'hlt-highlight-symbol)
+;; Highlight.el (PACKAGE DISABLED FOR NOW)
+;; (defun my/unhighlight-then-highlight-regexp ()
+;;   "Unhighlight all highlights then highlight given regexp"
+;;   (hlt-unhighlight-region)
+;;   (interactive)
+;;   (call-interactively 'hlt-highlight-regexp-region)
+;;   (hlt-next-highlight))
+;; (defun my/unhighlight-then-highlight-symbol-at-point ()
+;;   "Unhighlight all highlights then highlight symbol at point"
+;;   (hlt-unhighlight-region)
+;;   (interactive)
+;;   (call-interactively 'hlt-highlight-symbol))
+;; (global-set-key (kbd "M-p") 'hlt-previous-highlight)
+;; (global-set-key (kbd "M-n") 'hlt-next-highlight)
+;; ;; (global-set-key (kbd "C-x h") 'hlt-highlight-regexp-region)
+;; (global-set-key (kbd "C-x h") 'my/unhighlight-then-highlight-regexp)
+;; (global-set-key (kbd "C-x C-h") 'hlt-unhighlight-region)
+;; (global-set-key (kbd "C-x H") 'my/unhighlight-then-highlight-symbol-at-point)
 
-;; Buffer list - switch to other window by default with C-x C-b
+;; Buffer list - switch to other window by default
 (defun my/buffer-list-and-switch ()
   "Open buffer list in other window and switch to it automatically"
   (interactive)
   (list-buffers)
   (switch-to-buffer-other-window "*Buffer List*"))
-(global-set-key (kbd "C-x C-b") 'my/buffer-list-and-switch)
+(global-set-key (kbd "C-x b") 'my/buffer-list-and-switch)
+
+;; Swap C-x b and C-x C-b
+(global-set-key (kbd "C-x C-b") 'switch-to-buffer)
+
+;; Swap C-x o and C-x C-o
+(global-set-key (kbd "C-x C-o") 'other-window)
+(global-set-key (kbd "C-x o") 'delete-blank-lines)
+
+;; Switch between recently used buffers quickly
+(global-set-key (kbd "C-x C-h") 'previous-buffer)
+(global-set-key (kbd "C-x C-l") 'next-buffer)
+(global-set-key (kbd "C-x C-j") 'mode-line-other-buffer)
+(global-set-key (kbd "C-6") 'mode-line-other-buffer)
 
 ;; Show icomplete completions vertically
 (use-package icomplete-vertical
@@ -161,7 +181,34 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
               ("C-v" . icomplete-vertical-toggle)))
 
 ;; Company mode
-(add-hook 'after-init-hook 'global-company-mode)
+;; (add-hook 'after-init-hook 'global-company-mode)
+;; (company-mode 0)
+
+;; Dabbrev
+;; (global-set-key (kbd "C-<tab>") 'dabbrev-expand)
+;; (define-key minibuffer-local-map (kbd "C-<tab>") 'dabbrev-expand)
+(setq dabbrev-case-distinction nil)
+(setq dabbrev-case-fold-search t)
+(setq dabbrev-case-replace nil)
+
+;;;;;;;;;;; Fancy Dabbrev ;;;;;;;;;;;
+;; Load fancy-dabbrev.el:
+(require 'fancy-dabbrev)
+
+;; Enable fancy-dabbrev previews everywhere:
+(global-fancy-dabbrev-mode)
+
+;; Bind fancy-dabbrev-expand and fancy-dabbrev-backward to your keys of
+;; choice, here "TAB" and "Shift+TAB":
+(global-set-key (kbd "TAB") 'fancy-dabbrev-expand)
+(global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
+
+;; If you want TAB to indent the line like it usually does when the cursor
+;; is not next to an expandable word, use 'fancy-dabbrev-expand-or-indent
+;; instead of `fancy-dabbrev-expand`:
+(global-set-key (kbd "TAB") 'fancy-dabbrev-expand-or-indent)
+(global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Change file backup directory
 (setq backup-directory-alist '(("." . "~/.emacs_saves")))
@@ -179,6 +226,75 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 
 ;; Regex search lax whitespace
 (setq isearch-regexp-lax-whitespace 1)
+
+;; Immediately change direction when reversing search direction
+(setq isearch-repeat-on-direction-change t)
+
+;; Don't issue error when isearch reaches last match
+(setq isearch-wrap-pause 'no)
+
+;; isearch highlight full buffer
+(setq lazy-highlight-buffer t)
+(setq lazy-highlight-buffer-max-at-a-time nil)
+
+;; Show isearch match count
+(setq isearch-lazy-count t)
+
+;; Automatically wrap isearch around (PROTECT THIS WITH YOUR LIFE)
+(defun isearch-repeat-forward+ ()
+  (interactive)
+  (unless isearch-forward
+    (goto-char isearch-other-end))
+  (isearch-repeat-forward)
+  (unless isearch-success
+    (isearch-repeat-forward))
+  (recenter))
+
+(defun isearch-repeat-backward+ ()
+  (interactive)
+  (when (and isearch-forward isearch-other-end)
+    (goto-char isearch-other-end))
+  (isearch-repeat-backward)
+  (unless isearch-success
+    (isearch-repeat-backward))
+  (recenter))
+
+(define-key isearch-mode-map (kbd "C-s") 'isearch-repeat-forward+)
+(define-key isearch-mode-map (kbd "C-r") 'isearch-repeat-backward+)
+
+;; Isearch search ring
+(global-set-key (kbd "M-p") 'isearch-ring-retreat)
+(global-set-key (kbd "M-n") 'isearch-ring-advance)
+
+;; Slightly change shortcut for isearch search for symbol at point
+(global-set-key (kbd "M-s M-.") 'isearch-forward-symbol-at-point)
+
+;; Shortcut for rgrep
+(global-set-key (kbd "C-c C-r") 'rgrep)
+
+;; Rotate windows
+(defun rotate-windows (arg)
+  "Rotate your windows; use the prefix argument to rotate the other direction"
+  (interactive "P")
+  (if (not (> (count-windows) 1))
+      (message "You can't rotate a single window!")
+    (let* ((rotate-times (prefix-numeric-value arg))
+           (direction (if (or (< rotate-times 0) (equal arg '(4)))
+                          'reverse 'identity)))
+      (dotimes (_ (abs rotate-times))
+        (dotimes (i (- (count-windows) 1))
+          (let* ((w1 (elt (funcall direction (window-list)) i))
+                 (w2 (elt (funcall direction (window-list)) (+ i 1)))
+                 (b1 (window-buffer w1))
+                 (b2 (window-buffer w2))
+                 (s1 (window-start w1))
+                 (s2 (window-start w2))
+                 (p1 (window-point w1))
+                 (p2 (window-point w2)))
+            (set-window-buffer-start-and-point w1 b2 s2 p2)
+            (set-window-buffer-start-and-point w2 b1 s1 p1)))))))
+
+(global-set-key (kbd "C-c C-o") 'rotate-windows)
 
 ;; Show matching parentheses
 ;; (setq show-paren-delay 0)
@@ -210,21 +326,27 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  ;; If there is more than one, they won't work right.
  '(ac-auto-show-menu 0.2)
  '(blink-cursor-mode nil)
+ '(company-occurrence-weight-function 'company-occurrence-prefer-closest-above)
+ '(company-selection-wrap-around t)
  '(custom-enabled-themes '(gruvbox))
  '(custom-safe-themes
    '("7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(fido-mode nil)
  '(global-auto-complete-mode nil)
+ '(global-company-mode nil)
  '(icomplete-mode t)
  '(icomplete-show-matches-on-no-input t)
  '(ido-mode nil nil (ido))
  '(inhibit-startup-screen t)
+ '(isearch-lazy-count t)
  '(package-archives
    '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
      ("org" . "https://orgmode.org/elpa/")))
  '(package-selected-packages
-   '(company use-package icomplete-vertical highlight evil-visualstar evil auto-complete gruvbox-theme)))
+   '(fancy-dabbrev corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
+ '(search-exit-option nil)
+ '(shell-command-prompt-show-cwd t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
