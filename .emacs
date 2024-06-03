@@ -89,6 +89,12 @@
 (global-set-key (kbd "C-c k")    'windmove-up)
 (global-set-key (kbd "C-c j")  'windmove-down)
 
+; Better binding for other-window
+(global-set-key (kbd "M-o")  'other-window)
+
+; Balance windows
+(global-set-key (kbd "M-=")  'balance-windows)
+
 ;; Move to first non whitespace char in line
 (global-set-key (kbd "M-a") 'back-to-indentation)
 
@@ -146,6 +152,15 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (list-buffers)
   (switch-to-buffer-other-window "*Buffer List*"))
 (global-set-key (kbd "C-x b") 'my/buffer-list-and-switch)
+
+;; Automatically balance windows after deleting a window
+(defun my/delete-window-automatically-resize ()
+  "Delete selected window, then automatically balance windows"
+  (interactive)
+  (delete-window)
+  (balance-windows))
+
+(global-set-key (kbd "C-x 0") 'my/delete-window-automatically-resize)
 
 ;; Swap C-x b and C-x C-b
 (global-set-key (kbd "C-x C-b") 'switch-to-buffer)
@@ -211,7 +226,9 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Term mode TAB completion
-(define-key term-mode-map (kbd "TAB") 'term-dynamic-complete)
+;; (add-hook 'term-mode-hook
+;;    (lambda ()
+;;      (define-key term-mode-map (kbd "TAB") 'term-dynamic-complete-filename)))
 
 ;; Change file backup directory
 (setq backup-directory-alist '(("." . "~/.emacs_saves")))
