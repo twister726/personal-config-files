@@ -160,7 +160,12 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (delete-window)
   (balance-windows))
 
+;; Better keybindings for delete window
 (global-set-key (kbd "C-x 0") 'my/delete-window-automatically-resize)
+(global-set-key (kbd "M-0") 'my/delete-window-automatically-resize)
+
+;; Better keybinding for maximize windows
+(global-set-key (kbd "M-1") 'delete-other-windows)
 
 ;; Swap C-x b and C-x C-b
 (global-set-key (kbd "C-x C-b") 'switch-to-buffer)
