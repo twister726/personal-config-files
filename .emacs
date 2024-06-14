@@ -113,6 +113,12 @@
 ;; Auto-refresh dired on file change
 (add-hook 'dired-mode-hook 'auto-revert-mode)
 
+;; Show directories first in dired
+(setq dired-listing-switches "-aBhl  --group-directories-first")
+
+;; Dired sort by date by default
+(setq dired-listing-switches "-lt")
+
 ;; Display line numbers
 (when (version<= "26.0.50" emacs-version )
   (global-display-line-numbers-mode))
@@ -178,6 +184,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (global-set-key (kbd "C-x C-h") 'previous-buffer)
 (global-set-key (kbd "C-x C-l") 'next-buffer)
 (global-set-key (kbd "C-x C-j") 'mode-line-other-buffer)
+(global-set-key (kbd "M-6") 'mode-line-other-buffer)
 (global-set-key (kbd "C-6") 'mode-line-other-buffer)
 
 ;; Show icomplete completions vertically
@@ -359,6 +366,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(fido-mode nil)
  '(global-auto-complete-mode nil)
  '(global-company-mode nil)
+ '(global-display-line-numbers-mode t)
  '(icomplete-mode t)
  '(icomplete-show-matches-on-no-input t)
  '(ido-mode nil nil (ido))
@@ -371,10 +379,13 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(package-selected-packages
    '(fancy-dabbrev corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
  '(search-exit-option nil)
- '(shell-command-prompt-show-cwd t))
+ '(shell-command-prompt-show-cwd t)
+ '(show-paren-mode t)
+ '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight normal :height 98 :width normal))))
  '(cursor ((t nil))))
