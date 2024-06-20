@@ -110,6 +110,8 @@
 (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/p4.el"))
 (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm.el"))
 
+(require 'dired)
+
 ;; Auto-refresh dired on file change
 (add-hook 'dired-mode-hook 'auto-revert-mode)
 
@@ -118,6 +120,13 @@
 
 ;; Dired sort by date by default
 (setq dired-listing-switches "-lt")
+
+;; Dired keybindings
+(define-key dired-mode-map (kbd "f") 'dired-goto-file)
+(define-key dired-mode-map (kbd "j") 'dired-next-line)
+(define-key dired-mode-map (kbd "k") 'dired-previous-line)
+(define-key dired-mode-map (kbd "-") 'dired-up-directory)
+; "p" and "n" are free now
 
 ;; Display line numbers
 (when (version<= "26.0.50" emacs-version )
@@ -202,9 +211,11 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (icomplete-vertical-mode)
   :bind (:map icomplete-minibuffer-map
               ("<down>" . icomplete-forward-completions)
-              ("C-n" . icomplete-forward-completions)
+              ; ("C-n" . icomplete-forward-completions)
+              ("j" . icomplete-forward-completions)
               ("<up>" . icomplete-backward-completions)
-              ("C-p" . icomplete-backward-completions)
+              ; ("C-p" . icomplete-backward-completions)
+              ("k" . icomplete-backward-completions)
               ("C-v" . icomplete-vertical-toggle)))
 
 ;; Company mode
