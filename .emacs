@@ -106,9 +106,10 @@
 (setq c-default-style "stroustrup")
 
 ;; FM Emacs Mode
-(load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm-c-mode.el"))
-(load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/p4.el"))
-(load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm.el"))
+(when (getenv "VOB_ROOT")
+    (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm-c-mode.el"))
+    (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/p4.el"))
+    (load-file (concat (getenv "VOB_ROOT") "/formal/bin/emacs/fm.el")) )
 
 (require 'dired)
 
@@ -211,11 +212,11 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (icomplete-vertical-mode)
   :bind (:map icomplete-minibuffer-map
               ("<down>" . icomplete-forward-completions)
-              ; ("C-n" . icomplete-forward-completions)
-              ("j" . icomplete-forward-completions)
+              ("C-n" . icomplete-forward-completions)
+              ; ("j" . icomplete-forward-completions)
               ("<up>" . icomplete-backward-completions)
-              ; ("C-p" . icomplete-backward-completions)
-              ("k" . icomplete-backward-completions)
+              ("C-p" . icomplete-backward-completions)
+              ; ("k" . icomplete-backward-completions)
               ("C-v" . icomplete-vertical-toggle)))
 
 ;; Company mode
