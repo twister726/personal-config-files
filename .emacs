@@ -116,11 +116,10 @@
 ;; Auto-refresh dired on file change
 (add-hook 'dired-mode-hook 'auto-revert-mode)
 
-;; Show directories first in dired
-(setq dired-listing-switches "-aBhl  --group-directories-first")
-
-;; Dired sort by date by default
-(setq dired-listing-switches "-lt")
+;; Dired ls settings
+; (setq dired-listing-switches "-aBh  --group-directories-first -lat --time-style=+\"%a %b %d\"")
+; (setq dired-listing-switches "-aBh  --group-directories-first -lat")
+(setq dired-listing-switches "-aBh -lat")
 
 ;; Dired keybindings
 (define-key dired-mode-map (kbd "f") 'dired-goto-file)
@@ -369,12 +368,17 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ac-auto-show-menu 0.2)
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(ansi-color-names-vector
+   ["black" "red3" "ForestGreen" "yellow3" "blue" "magenta3" "DeepSkyBlue" "gray50"])
  '(blink-cursor-mode nil)
  '(company-occurrence-weight-function 'company-occurrence-prefer-closest-above)
  '(company-selection-wrap-around t)
- '(custom-enabled-themes '(gruvbox))
+ '(custom-enabled-themes '(leuven))
  '(custom-safe-themes
-   '("7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
+   '("a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
+ '(dabbrev-ignored-buffer-regexps '(".*\\.log"))
  '(fido-mode nil)
  '(global-auto-complete-mode nil)
  '(global-company-mode nil)
@@ -390,6 +394,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
      ("org" . "https://orgmode.org/elpa/")))
  '(package-selected-packages
    '(fancy-dabbrev corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
+ '(pdf-view-midnight-colors '("#282828" . "#f2e5bc"))
  '(search-exit-option nil)
  '(shell-command-prompt-show-cwd t)
  '(show-paren-mode t)
@@ -399,5 +404,5 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight normal :height 98 :width normal))))
+ '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight normal :height 120 :width normal))))
  '(cursor ((t nil))))
