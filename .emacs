@@ -44,6 +44,16 @@
 ;; Evil keybindings
 (define-key evil-normal-state-map (kbd "C-r") 'isearch-backward)
 (define-key evil-normal-state-map (kbd "M-u") 'evil-redo)
+(define-key evil-normal-state-map (kbd "0") 'evil-first-non-blank)
+(define-key evil-normal-state-map (kbd "\)") 'evil-beginning-of-line)
+
+(defun my/tab-jump-or-org-cycle ()
+    "jumps to beginning of line in all modes except org mode, where it cycles"
+    (interactive)
+    (if (equal major-mode 'org-mode)
+        (org-cycle)
+        (evil-first-non-blank)))
+(define-key evil-normal-state-map (kbd "<tab>") 'my/tab-jump-or-org-cycle)
 
 ;; Scroll half page instead of full page
 (autoload 'View-scroll-half-page-forward "view")
@@ -391,6 +401,11 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 ;; Disable ido mode
 (setq ido-everywhere nil)
 (ido-mode nil)
+
+;; Org-mode keybindings
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
