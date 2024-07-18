@@ -168,6 +168,21 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (switch-to-buffer-other-window "*Buffer List*"))
 (global-set-key (kbd "C-x b") 'my/buffer-list-and-switch)
 
+;; Copy current file name to clipboard
+(defun my/copy-file-name-to-clipboard ()
+  "Put the current file name on the clipboard"
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (when filename
+      (with-temp-buffer
+        (insert filename)
+        (clipboard-kill-region (point-min) (point-max)))
+      (message filename))))
+
+(global-set-key (kbd "C-x C-p") 'my/copy-file-name-to-clipboard)
+
 ;; Automatically balance windows after deleting a window
 (defun my/delete-window-automatically-resize ()
   "Delete selected window, then automatically balance windows"
@@ -218,34 +233,49 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
               ; ("k" . icomplete-backward-completions)
               ("C-v" . icomplete-vertical-toggle)))
 
-;; Company mode
-;; (add-hook 'after-init-hook 'global-company-mode)
-;; (company-mode 0)
-
 ;; Dabbrev
-;; (global-set-key (kbd "C-<tab>") 'dabbrev-expand)
-;; (define-key minibuffer-local-map (kbd "C-<tab>") 'dabbrev-expand)
 (setq dabbrev-case-distinction nil)
 (setq dabbrev-case-fold-search t)
 (setq dabbrev-case-replace nil)
 
 ;;;;;;;;;;; Fancy Dabbrev ;;;;;;;;;;;
+
+;;;;;; My old configuration ;;;;;;
 ;; Load fancy-dabbrev.el:
-(require 'fancy-dabbrev)
+;; (require 'fancy-dabbrev)
+;; 
+;; ;; Enable fancy-dabbrev previews everywhere:
+;; (global-fancy-dabbrev-mode)
+;; 
+;; ;; Bind fancy-dabbrev-expand and fancy-dabbrev-backward to your keys of
+;; ;; choice, here "TAB" and "Shift+TAB":
+;; (global-set-key (kbd "TAB") 'fancy-dabbrev-expand)
+;; (global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
+;; 
+;; ;; If you want TAB to indent the line like it usually does when the cursor
+;; ;; is not next to an expandable word, use 'fancy-dabbrev-expand-or-indent
+;; ;; instead of `fancy-dabbrev-expand`:
+;; (global-set-key (kbd "TAB") 'fancy-dabbrev-expand-or-indent)
+;; (global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
 
-;; Enable fancy-dabbrev previews everywhere:
-(global-fancy-dabbrev-mode)
+;;;;;; From ideasman_42 Reddit ;;;;;;
 
-;; Bind fancy-dabbrev-expand and fancy-dabbrev-backward to your keys of
-;; choice, here "TAB" and "Shift+TAB":
-(global-set-key (kbd "TAB") 'fancy-dabbrev-expand)
-(global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
+(use-package fancy-dabbrev
+  :commands (fancy-dabbrev-mode)
+  :config
+  (setq fancy-dabbrev-preview-delay 0.1)
+  (setq fancy-dabbrev-preview-context 'before-non-word)
 
-;; If you want TAB to indent the line like it usually does when the cursor
-;; is not next to an expandable word, use 'fancy-dabbrev-expand-or-indent
-;; instead of `fancy-dabbrev-expand`:
-(global-set-key (kbd "TAB") 'fancy-dabbrev-expand-or-indent)
-(global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
+  (setq fancy-dabbrev-expansion-on-preview-only t)
+  ;; (setq fancy-dabbrev-indent-command 'tab-to-tab-stop)
+  (setq fancy-dabbrev-indent-command 'indent-for-tab-command)
+
+  (define-key evil-insert-state-map (kbd "<tab>") 'fancy-dabbrev-expand-or-indent))
+
+;; Only while in evil insert mode.
+(with-eval-after-load 'evil
+  (add-hook 'evil-insert-state-entry-hook (lambda () (fancy-dabbrev-mode 1)))
+  (add-hook 'evil-insert-state-exit-hook (lambda () (fancy-dabbrev-mode 0))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Term mode TAB completion
@@ -379,6 +409,8 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(custom-safe-themes
    '("a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(dabbrev-ignored-buffer-regexps '(".*\\.log"))
+ '(fancy-dabbrev-no-expansion-for '(multiple-cursors-mode Shell-mode))
+ '(fancy-dabbrev-no-preview-for '(iedit-mode isearch-mode multiple-cursors-mode Shell-mode))
  '(fido-mode nil)
  '(global-auto-complete-mode nil)
  '(global-company-mode nil)
