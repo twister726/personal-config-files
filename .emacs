@@ -403,9 +403,12 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (ido-mode nil)
 
 ;; Org-mode keybindings
-(global-set-key (kbd "C-c l") #'org-store-link)
-(global-set-key (kbd "C-c a") #'org-agenda)
-(global-set-key (kbd "C-c c") #'org-capture)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c c") 'org-capture)
+
+;; IBuffer mode bindings
+(define-key ibuffer-mode-map (kbd "M-o") 'other-window)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
