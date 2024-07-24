@@ -44,8 +44,8 @@
 ;; Evil keybindings
 (define-key evil-normal-state-map (kbd "C-r") 'isearch-backward)
 (define-key evil-normal-state-map (kbd "M-u") 'evil-redo)
-(define-key evil-normal-state-map (kbd "0") 'evil-first-non-blank)
-(define-key evil-normal-state-map (kbd "\)") 'evil-beginning-of-line)
+;(define-key evil-normal-state-map (kbd "0") 'evil-first-non-blank)
+;(define-key evil-normal-state-map (kbd "\)") 'evil-beginning-of-line)
 
 (defun my/tab-jump-or-org-cycle ()
     "jumps to beginning of line in all modes except org mode, where it cycles"
