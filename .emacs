@@ -318,7 +318,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 
 ;; isearch highlight full buffer
 (setq lazy-highlight-buffer t)
-(setq lazy-highlight-buffer-max-at-a-time nil)
+(setq lazy-highlight-buffer-max-at-a-time 100)
 
 ;; Show isearch match count
 (setq isearch-lazy-count t)
@@ -407,8 +407,44 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (global-set-key (kbd "C-c a") 'org-agenda)
 (global-set-key (kbd "C-c c") 'org-capture)
 
+;; Org hide markup characters
+(setq org-hide-emphasis-markers t)
+
 ;; IBuffer mode bindings
+(require 'ibuffer)
 (define-key ibuffer-mode-map (kbd "M-o") 'other-window)
+
+;; Function to surround region with strings
+;; From arialdomartini.github.io
+(defun surround-region--surround (delimiters)
+  "Surround the active region with hard-coded strings"
+  (when (region-active-p)
+    (save-excursion
+      (let ((beginning (region-beginning))
+            (end (region-end))
+            (opening-delimiter (car delimiters))
+            (closing-delimiter (cdr delimiters)))
+
+        (goto-char beginning)
+        (insert opening-delimiter)
+
+        (goto-char (+ end (length closing-delimiter)))
+	(insert closing-delimiter)))))
+
+(defun surround-region--ask-delimiter ()
+  (let ((choices '(("<<< and >>>" . ("<<<" . ">>>"))
+                   ("double quotes: \"\"" . ("\"" . "\""))
+                   ("markdown source block: ```emacs-lisp" . ("```emacs-lisp" . "```"))
+                   ("comment: *\ /*" . ("/*" . "*/"))
+                   ("bold: * *" . ("*" . "*")))))
+    (alist-get 
+     (completing-read "Your generation: " choices )
+     choices nil nil 'equal)))
+
+(defun surround-region-with-hard-coded-strings (delimiters)
+  "Surround the active region with hard-coded strings"
+  (interactive (list (surround-region--ask-delimiter)))
+  (surround-region--surround delimiters))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
