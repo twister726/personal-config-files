@@ -207,8 +207,13 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 ;; Better keybinding for maximize windows
 (global-set-key (kbd "M-1") 'delete-other-windows)
 
-;; Swap C-x b and C-x C-b
-(global-set-key (kbd "C-x C-b") 'switch-to-buffer)
+;; Quick buffer switching
+(global-set-key (kbd "M-2") 'switch-to-buffer)
+(global-set-key (kbd "M-4") 'switch-to-buffer-other-window)
+
+;; Quick file switching
+(global-set-key (kbd "M-3") 'find-file)
+(global-set-key (kbd "M-5") 'find-file-other-window)
 
 ;; Swap C-x o and C-x C-o
 (global-set-key (kbd "C-x C-o") 'other-window)
