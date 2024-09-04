@@ -1,4 +1,4 @@
-;; SOUR TODO -
+;;  TODO -
 ;; 1. In term-mode, make keybindings to easily switch between char mode and evil insert mode, to line mode and evil normal mode.
 ;;    ie when I'm in char mode, it should do Esc -> C-c C-j and when I'm in line mode it should do C-c C-k G A
 ;; 2. Make a function which does M-x term and immediately M-x rename-buffer
@@ -310,7 +310,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 
 ;; Leave searched text highlighted
 (setq lazy-highlight-cleanup nil)
-(setq lazy-highlight-initial-delay 0)
+;(setq lazy-highlight-initial-delay 0)
 
 ;; Regex search lax whitespace
 (setq isearch-regexp-lax-whitespace 1)
@@ -322,8 +322,8 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (setq isearch-wrap-pause 'no)
 
 ;; isearch highlight full buffer
-(setq lazy-highlight-buffer t)
-(setq lazy-highlight-buffer-max-at-a-time 100)
+;(setq lazy-highlight-buffer t)
+;(setq lazy-highlight-buffer-max-at-a-time 100)
 
 ;; Show isearch match count
 (setq isearch-lazy-count t)
@@ -441,6 +441,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
                    ("double quotes: \"\"" . ("\"" . "\""))
                    ("markdown source block: ```emacs-lisp" . ("```emacs-lisp" . "```"))
                    ("comment: *\ /*" . ("/*" . "*/"))
+                   ("spaces:   " . (" " . " "))
                    ("bold: * *" . ("*" . "*")))))
     (alist-get 
      (completing-read "Your generation: " choices )
