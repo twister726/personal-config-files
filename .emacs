@@ -36,6 +36,7 @@
 ;; (evil-set-initial-state 'help-mode 'emacs)
 (evil-set-initial-state 'Info-mode 'emacs)
 (evil-set-initial-state 'profiler-report-mode 'emacs)
+(evil-set-initial-state 'vterm-mode 'emacs)
 
 ;; Evil packages
 (require 'evil-visualstar) ; To search selection with *
@@ -54,6 +55,42 @@
         (org-cycle)
         (evil-first-non-blank)))
 (define-key evil-normal-state-map (kbd "<tab>") 'my/tab-jump-or-org-cycle)
+
+;; Redefine evil mark jump to also center screen (from evil-commands.el)
+(evil-define-command my/evil-goto-mark-line (char &optional noerror)
+  "Go to the line of the marker specified by CHAR, and then recenter the screen"
+  :keep-visual t
+  :repeat nil
+  :type line
+  :jump t
+  (interactive (list (read-char)))
+  (evil-goto-mark char noerror)
+  (evil-first-non-blank)
+  (recenter))
+
+(define-key evil-normal-state-map (kbd "'") 'my/evil-goto-mark-line)
+
+;; Redefine evil goto line to also center screen (from evil-commands.el)
+(evil-define-motion my/evil-goto-line (count)
+  "Go to line COUNT. By default the last line. Then recenter screen"
+  :jump t
+  :type line
+  (evil-ensure-column
+    (if (null count)
+        (goto-char (point-max))
+      (goto-char (point-min))
+      (forward-line (1- count)))
+    (recenter)))
+
+(evil-define-motion my/evil-goto-first-line (count)
+  "Go to line COUNT. By default the first line."
+  :jump t
+  :type line
+  (evil-goto-line (or count 1))
+  (recenter))
+
+(define-key evil-normal-state-map (kbd "G") 'my/evil-goto-line)
+(define-key evil-motion-state-map (kbd "g g") 'my/evil-goto-first-line)
 
 ;; Scroll half page instead of full page
 (autoload 'View-scroll-half-page-forward "view")
@@ -384,6 +421,17 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 
 (global-set-key (kbd "C-c C-o") 'rotate-windows)
 
+;; vterm
+(use-package vterm
+    :ensure t
+    :config
+    (define-key vterm-mode-map (kbd "<tab>") 'vterm-send-tab)
+    (define-key vterm-mode-map (kbd "M-2") 'switch-to-buffer)
+    (define-key vterm-mode-map (kbd "M-3") 'find-file)
+    (define-key vterm-mode-map (kbd "M-4") 'switch-to-buffer-other-window)
+    (define-key vterm-mode-map (kbd "M-5") 'find-file-other-window)
+    (define-key vterm-mode-map (kbd "M-0") 'my/delete-window-automatically-resize))
+
 ;; Show matching parentheses
 ;; (setq show-paren-delay 0)
 ;; (show-paren-mode 1)
@@ -414,6 +462,19 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 
 ;; Org hide markup characters
 (setq org-hide-emphasis-markers t)
+
+;; Org TODO keyword faces (from https://github.com/james-stoup/emacs-org-mode-tutorial)
+(setq org-todo-keyword-faces
+      '(
+        ("TODO" . (:foreground "GoldenRod" :weight bold))
+        ; ("PLANNING" . (:foreground "DeepPink" :weight bold))
+        ("IN-PROGRESS" . (:foreground "Cyan" :weight bold))
+        ; ("VERIFYING" . (:foreground "DarkOrange" :weight bold))
+        ("BLOCKED" . (:foreground "Red" :weight bold))
+        ("DONE" . (:foreground "LimeGreen" :weight bold))
+        ; ("OBE" . (:foreground "LimeGreen" :weight bold))
+        ; ("WONT-DO" . (:foreground "LimeGreen" :weight bold))
+        ))
 
 ;; IBuffer mode bindings
 (require 'ibuffer)
@@ -480,12 +541,13 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(ido-mode nil nil (ido))
  '(inhibit-startup-screen t)
  '(isearch-lazy-count t)
+ '(org-todo-keywords '((sequence "TODO" "DONE" "IN-PROGRESS")))
  '(package-archives
    '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
      ("org" . "https://orgmode.org/elpa/")))
  '(package-selected-packages
-   '(fancy-dabbrev corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
+   '(vterm fancy-dabbrev corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
  '(pdf-view-midnight-colors '("#282828" . "#f2e5bc"))
  '(search-exit-option nil)
  '(shell-command-prompt-show-cwd t)
