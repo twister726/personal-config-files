@@ -477,8 +477,10 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
         ))
 
 ;; IBuffer mode bindings
-(require 'ibuffer)
-(define-key ibuffer-mode-map (kbd "M-o") 'other-window)
+;(require 'ibuffer)
+;(define-key ibuffer-mode-map (kbd "M-o") 'other-window)
+(with-eval-after-load 'ibuffer
+  (define-key ibuffer-mode-map (kbd "M-o") 'other-window))
 
 ;; Function to surround region with strings
 ;; From arialdomartini.github.io
