@@ -261,6 +261,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (global-set-key (kbd "C-x C-l") 'next-buffer)
 (global-set-key (kbd "C-x C-j") 'mode-line-other-buffer)
 (global-set-key (kbd "M-6") 'mode-line-other-buffer)
+(global-set-key (kbd "M-7") 'revert-buffer-no-confirm)
 (global-set-key (kbd "C-6") 'mode-line-other-buffer)
 
 ;; Show icomplete completions vertically
@@ -325,9 +326,9 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (define-key evil-insert-state-map (kbd "<tab>") 'fancy-dabbrev-expand-or-indent))
 
 ;; Only while in evil insert mode.
-(with-eval-after-load 'evil
-  (add-hook 'evil-insert-state-entry-hook (lambda () (fancy-dabbrev-mode 1)))
-  (add-hook 'evil-insert-state-exit-hook (lambda () (fancy-dabbrev-mode 0))))
+;(with-eval-after-load 'evil
+;  (add-hook 'evil-insert-state-entry-hook (lambda () (fancy-dabbrev-mode 1)))
+;  (add-hook 'evil-insert-state-exit-hook (lambda () (fancy-dabbrev-mode 0))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Term mode TAB completion
@@ -426,6 +427,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
     :ensure t
     :config
     (define-key vterm-mode-map (kbd "<tab>") 'vterm-send-tab)
+    (define-key vterm-mode-map (kbd "M-1") 'delete-other-windows)
     (define-key vterm-mode-map (kbd "M-2") 'switch-to-buffer)
     (define-key vterm-mode-map (kbd "M-3") 'find-file)
     (define-key vterm-mode-map (kbd "M-4") 'switch-to-buffer-other-window)
@@ -463,15 +465,19 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 ;; Org hide markup characters
 (setq org-hide-emphasis-markers t)
 
+;; Org TODO keywords (from https://doc.norang.ca/org-mode.html)
+(setq org-todo-keywords '((sequence "TODO" "NEXT" "WAITING" "|" "BLOCKED" "DONE")))
+
 ;; Org TODO keyword faces (from https://github.com/james-stoup/emacs-org-mode-tutorial)
 (setq org-todo-keyword-faces
       '(
         ("TODO" . (:foreground "GoldenRod" :weight bold))
         ; ("PLANNING" . (:foreground "DeepPink" :weight bold))
-        ("IN-PROGRESS" . (:foreground "Cyan" :weight bold))
-        ; ("VERIFYING" . (:foreground "DarkOrange" :weight bold))
+        ("NEXT" . (:foreground "blue" :weight bold))
+        ("WAITING" . (:foreground "Cyan" :weight bold))
         ("BLOCKED" . (:foreground "Red" :weight bold))
         ("DONE" . (:foreground "LimeGreen" :weight bold))
+        ; ("VERIFYING" . (:foreground "DarkOrange" :weight bold))
         ; ("OBE" . (:foreground "LimeGreen" :weight bold))
         ; ("WONT-DO" . (:foreground "LimeGreen" :weight bold))
         ))
@@ -543,7 +549,8 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(ido-mode nil nil (ido))
  '(inhibit-startup-screen t)
  '(isearch-lazy-count t)
- '(org-todo-keywords '((sequence "TODO" "DONE" "IN-PROGRESS")))
+ '(org-agenda-files
+   '("~/tasks.org" "~/stars/many_to_many_tech_talk.org" "~/stars/dpx_contributing_tasks.org" "~/stars/set_compare_rule.org" "~/stars/non_determinism.org" "~/stars/report_pre_svf_names.org" "~/stars/matching_issue.org"))
  '(package-archives
    '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
