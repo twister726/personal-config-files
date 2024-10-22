@@ -550,7 +550,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(inhibit-startup-screen t)
  '(isearch-lazy-count t)
  '(org-agenda-files
-   '("~/tasks.org" "~/stars/many_to_many_tech_talk.org" "~/stars/dpx_contributing_tasks.org" "~/stars/set_compare_rule.org" "~/stars/non_determinism.org" "~/stars/report_pre_svf_names.org" "~/stars/matching_issue.org"))
+   '("~/stars/misc_tasks.org" "~/tasks.org" "~/stars/many_to_many_tech_talk.org" "~/stars/dpx_contributing_tasks.org" "~/stars/set_compare_rule.org" "~/stars/non_determinism.org" "~/stars/report_pre_svf_names.org" "~/stars/matching_issue.org"))
  '(package-archives
    '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
