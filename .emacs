@@ -214,6 +214,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (list-buffers)
   (switch-to-buffer-other-window "*Buffer List*"))
 (global-set-key (kbd "C-x b") 'my/buffer-list-and-switch)
+(global-set-key (kbd "C-x C-b") 'my/buffer-list-and-switch)
 
 ;; Copy current file name to clipboard
 (defun my/copy-file-name-to-clipboard ()
@@ -313,17 +314,17 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 
 ;;;;;; From ideasman_42 Reddit ;;;;;;
 
-(use-package fancy-dabbrev
-  :commands (fancy-dabbrev-mode)
-  :config
-  (setq fancy-dabbrev-preview-delay 0.1)
-  (setq fancy-dabbrev-preview-context 'before-non-word)
-
-  (setq fancy-dabbrev-expansion-on-preview-only t)
-  ;; (setq fancy-dabbrev-indent-command 'tab-to-tab-stop)
-  (setq fancy-dabbrev-indent-command 'indent-for-tab-command)
-
-  (define-key evil-insert-state-map (kbd "<tab>") 'fancy-dabbrev-expand-or-indent))
+;; (use-package fancy-dabbrev
+;;   :commands (fancy-dabbrev-mode)
+;;   :config
+;;   (setq fancy-dabbrev-preview-delay 0.1)
+;;   (setq fancy-dabbrev-preview-context 'before-non-word)
+;; 
+;;   (setq fancy-dabbrev-expansion-on-preview-only t)
+;;   ;; (setq fancy-dabbrev-indent-command 'tab-to-tab-stop)
+;;   (setq fancy-dabbrev-indent-command 'indent-for-tab-command)
+;; 
+;;   (define-key evil-insert-state-map (kbd "<tab>") 'fancy-dabbrev-expand-or-indent))
 
 ;; Only while in evil insert mode.
 ;(with-eval-after-load 'evil
@@ -389,14 +390,19 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (define-key isearch-mode-map (kbd "C-r") 'isearch-repeat-backward+)
 
 ;; Isearch search ring
-(global-set-key (kbd "M-p") 'isearch-ring-retreat)
-(global-set-key (kbd "M-n") 'isearch-ring-advance)
+; (global-set-key (kbd "M-p") 'isearch-ring-retreat)
+; (global-set-key (kbd "M-n") 'isearch-ring-advance)
+(define-key isearch-mode-map (kbd "M-p") 'isearch-ring-retreat)
+(define-key isearch-mode-map (kbd "M-n") 'isearch-ring-advance)
 
 ;; Slightly change shortcut for isearch search for symbol at point
 (global-set-key (kbd "M-s M-.") 'isearch-forward-symbol-at-point)
 
 ;; Shortcut for rgrep
 (global-set-key (kbd "C-c C-r") 'rgrep)
+
+;; Isearch change backspace to del last char instead of undo input item
+(define-key isearch-mode-map (kbd "<backspace>") 'isearch-del-char)
 
 ;; Rotate windows
 (defun rotate-windows (arg)
@@ -521,6 +527,25 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (interactive (list (surround-region--ask-delimiter)))
   (surround-region--surround delimiters))
 
+;; Doom themes
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  ; (doom-themes-neotree-config)
+  ;; or for treemacs users
+  ; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  ; (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -534,38 +559,78 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(blink-cursor-mode nil)
  '(company-occurrence-weight-function 'company-occurrence-prefer-closest-above)
  '(company-selection-wrap-around t)
- '(custom-enabled-themes '(leuven))
+ '(custom-enabled-themes '(doom-one))
  '(custom-safe-themes
-   '("a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
+   '("7ec8fd456c0c117c99e3a3b16aaf09ed3fb91879f6601b1ea0eeaee9c6def5d9" "48042425e84cd92184837e01d0b4fe9f912d875c43021c3bcb7eeb51f1be5710" "34cf3305b35e3a8132a0b1bdf2c67623bc2cb05b125f8d7d26bd51fd16d547ec" "88f7ee5594021c60a4a6a1c275614103de8c1435d6d08cc58882f920e0cec65e" "e4a702e262c3e3501dfe25091621fe12cd63c7845221687e36a79e17cf3a67e0" "f828930c293178ba41ebfdec2154bfdb77cdf3df2157a316940860d7f51dda61" "e1da45d87a83acb558e69b90015f0821679716be79ecb76d635aafdca8f6ebd4" "09b833239444ac3230f591e35e3c28a4d78f1556b107bafe0eb32b5977204d93" "8dbbcb2b7ea7e7466ef575b60a92078359ac260c91fe908685b3983ab8e20e3f" "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(dabbrev-ignored-buffer-regexps '(".*\\.log"))
+ '(exwm-floating-border-color "#191b20")
  '(fancy-dabbrev-no-expansion-for '(multiple-cursors-mode Shell-mode))
  '(fancy-dabbrev-no-preview-for '(iedit-mode isearch-mode multiple-cursors-mode Shell-mode))
+ '(fci-rule-color "#5B6268")
  '(fido-mode nil)
  '(global-auto-complete-mode nil)
  '(global-company-mode nil)
  '(global-display-line-numbers-mode t)
+ '(highlight-tail-colors
+   ((("#333a38" "#99bb66" "green")
+     . 0)
+    (("#2b3d48" "#46D9FF" "brightcyan")
+     . 20)))
+ '(hl-sexp-background-color "#efebe9")
  '(icomplete-mode t)
  '(icomplete-show-matches-on-no-input t)
  '(ido-mode nil nil (ido))
  '(inhibit-startup-screen t)
  '(isearch-lazy-count t)
+ '(jdee-db-active-breakpoint-face-colors (cons "#1B2229" "#51afef"))
+ '(jdee-db-requested-breakpoint-face-colors (cons "#1B2229" "#98be65"))
+ '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#3f444a"))
+ '(objed-cursor-color "#ff6c6b")
  '(org-agenda-files
-   '("~/stars/misc_tasks.org" "~/tasks.org" "~/stars/many_to_many_tech_talk.org" "~/stars/dpx_contributing_tasks.org" "~/stars/set_compare_rule.org" "~/stars/non_determinism.org" "~/stars/report_pre_svf_names.org" "~/stars/matching_issue.org"))
+   '("~/stars/cpoint_mgr_crash.org" "~/stars/12failing.org" "~/stars/non_determinism.org" "~/tasks.org" "~/stars/many_to_many_tech_talk.org" "~/stars/dpx_contributing_tasks.org" "~/stars/set_compare_rule.org" "~/stars/report_pre_svf_names.org" "~/stars/matching_issue.org"))
  '(package-archives
    '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
      ("org" . "https://orgmode.org/elpa/")))
  '(package-selected-packages
-   '(vterm fancy-dabbrev corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
+   '(doom-themes leuven-theme vterm corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
  '(pdf-view-midnight-colors '("#282828" . "#f2e5bc"))
+ '(rustic-ansi-faces
+   ["#282c34" "#ff6c6b" "#98be65" "#ECBE7B" "#51afef" "#c678dd" "#46D9FF" "#bbc2cf"])
  '(search-exit-option nil)
  '(shell-command-prompt-show-cwd t)
  '(show-paren-mode t)
- '(tool-bar-mode nil))
+ '(tool-bar-mode nil)
+ '(vc-annotate-background "#282c34")
+ '(vc-annotate-color-map
+   (list
+    (cons 20 "#98be65")
+    (cons 40 "#b4be6c")
+    (cons 60 "#d0be73")
+    (cons 80 "#ECBE7B")
+    (cons 100 "#e6ab6a")
+    (cons 120 "#e09859")
+    (cons 140 "#da8548")
+    (cons 160 "#d38079")
+    (cons 180 "#cc7cab")
+    (cons 200 "#c678dd")
+    (cons 220 "#d974b7")
+    (cons 240 "#ec7091")
+    (cons 260 "#ff6c6b")
+    (cons 280 "#cf6162")
+    (cons 300 "#9f585a")
+    (cons 320 "#6f4e52")
+    (cons 340 "#5B6268")
+    (cons 360 "#5B6268")))
+ '(vc-annotate-very-old-color nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight normal :height 120 :width normal))))
- '(cursor ((t nil))))
+ '(cursor ((t nil)))
+ '(org-document-title ((t (:foreground "#c678dd" :weight bold :height 2.0 :width normal))))
+ '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.25))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.125)))))
