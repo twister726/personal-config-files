@@ -479,7 +479,8 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
       '(
         ("TODO" . (:foreground "GoldenRod" :weight bold))
         ; ("PLANNING" . (:foreground "DeepPink" :weight bold))
-        ("NEXT" . (:foreground "blue" :weight bold))
+        ; ("NEXT" . (:foreground "blue" :weight bold))
+        ("NEXT" . (:foreground "LightBlue" :weight bold))
         ("WAITING" . (:foreground "Cyan" :weight bold))
         ("BLOCKED" . (:foreground "Red" :weight bold))
         ("DONE" . (:foreground "LimeGreen" :weight bold))
@@ -587,7 +588,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#3f444a"))
  '(objed-cursor-color "#ff6c6b")
  '(org-agenda-files
-   '("~/stars/cpoint_mgr_crash.org" "~/stars/12failing.org" "~/stars/non_determinism.org" "~/tasks.org" "~/stars/many_to_many_tech_talk.org" "~/stars/dpx_contributing_tasks.org" "~/stars/set_compare_rule.org" "~/stars/report_pre_svf_names.org" "~/stars/matching_issue.org"))
+   '("~/stars/non_determinism.org" "~/tasks.org" "~/stars/many_to_many_tech_talk.org" "~/stars/dpx_contributing_tasks.org" "~/stars/set_compare_rule.org" "~/stars/report_pre_svf_names.org" "~/stars/matching_issue.org"))
  '(package-archives
    '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
@@ -631,6 +632,6 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight normal :height 120 :width normal))))
  '(cursor ((t nil)))
  '(org-document-title ((t (:foreground "#c678dd" :weight bold :height 2.0 :width normal))))
- '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
- '(org-level-2 ((t (:inherit outline-2 :height 1.25))))
- '(org-level-3 ((t (:inherit outline-3 :height 1.125)))))
+ '(org-level-1 ((t (:inherit outline-1 :height 1.25))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.1))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.05)))))
