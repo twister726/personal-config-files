@@ -2,6 +2,7 @@
 ;; 1. In term-mode, make keybindings to easily switch between char mode and evil insert mode, to line mode and evil normal mode.
 ;;    ie when I'm in char mode, it should do Esc -> C-c C-j and when I'm in line mode it should do C-c C-k G A
 ;; 2. Make a function which does M-x term and immediately M-x rename-buffer
+;; 3. Make a function to cycle between term buffers with a single keypress (or just install vterm-toggle or multi-vterm)
 
 (require 'misc)
 
@@ -37,6 +38,9 @@
 (evil-set-initial-state 'Info-mode 'emacs)
 (evil-set-initial-state 'profiler-report-mode 'emacs)
 (evil-set-initial-state 'vterm-mode 'emacs)
+(evil-set-initial-state 'XREF 'emacs)
+(evil-set-initial-state 'gud-mode 'emacs)
+(evil-set-initial-state 'Shell-mode 'normal)
 
 ;; Evil packages
 (require 'evil-visualstar) ; To search selection with *
@@ -206,6 +210,10 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 ;; (global-set-key (kbd "C-x h") 'my/unhighlight-then-highlight-regexp)
 ;; (global-set-key (kbd "C-x C-h") 'hlt-unhighlight-region)
 ;; (global-set-key (kbd "C-x H") 'my/unhighlight-then-highlight-symbol-at-point)
+
+; Syntax highlight .bashrc.sourabhr
+(add-to-list 'auto-mode-alist '("\\.bashrc\
+\.sourabhr\\'" . sh-mode))
 
 ;; Buffer list - switch to other window by default
 (defun my/buffer-list-and-switch ()
@@ -450,6 +458,10 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   :config
   (show-paren-mode +1))
 
+;; Org superstar - fancy headings
+(require 'org-superstar)
+(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+
 ;; Case insensitive search
 (setq case-fold-search t)
 
@@ -462,6 +474,10 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 ;; Disable ido mode
 (setq ido-everywhere nil)
 (ido-mode nil)
+
+;; yasnippet
+(require 'yasnippet)
+(yas-global-mode 1)
 
 ;; Org-mode keybindings
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -495,6 +511,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (with-eval-after-load 'ibuffer
   (define-key ibuffer-mode-map (kbd "M-o") 'other-window))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function to surround region with strings
 ;; From arialdomartini.github.io
 (defun surround-region--surround (delimiters)
@@ -518,6 +535,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
                    ("markdown source block: ```emacs-lisp" . ("```emacs-lisp" . "```"))
                    ("comment: *\ /*" . ("/*" . "*/"))
                    ("spaces:   " . (" " . " "))
+                   ("brackets: ()" . ("(" . ")"))
                    ("bold: * *" . ("*" . "*")))))
     (alist-get 
      (completing-read "Your generation: " choices )
@@ -528,7 +546,8 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   (interactive (list (surround-region--ask-delimiter)))
   (surround-region--surround delimiters))
 
-;; Doom themes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Doom themes
 (use-package doom-themes
   :ensure t
   :config
@@ -547,6 +566,56 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; vterm-toggle
+;(global-set-key [f2] 'vterm-toggle)
+;(global-set-key [C-f2] 'vterm-toggle-cd)
+(global-set-key (kbd "M-8") 'vterm-toggle)
+(global-set-key (kbd "M-*") 'vterm-toggle-cd)
+
+;; you can cd to the directory where your previous buffer file exists
+;; after you have toggle to the vterm buffer with `vterm-toggle'.
+(define-key vterm-mode-map [(control return)]   #'vterm-toggle-insert-cd)
+
+;Switch to next vterm buffer
+(define-key vterm-mode-map (kbd "s-n")   'vterm-toggle-forward)
+;Switch to previous vterm buffer
+(define-key vterm-mode-map (kbd "s-p")   'vterm-toggle-backward)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; eglot
+(require 'eglot)
+(require 'project)
+(add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd"))
+(add-hook 'c-mode-hook 'eglot-ensure)
+(add-hook 'c++-mode-hook 'eglot-ensure)
+
+; Disable flymake cause it's annoying
+(with-eval-after-load "eglot"
+  (add-to-list 'eglot-stay-out-of 'flymake))
+
+; For performance ;;;;;;;;;;;;;;;;;;;;;
+(setq eglot-events-buffer-size 0)
+(fset #'jsonrpc--log-event #'ignore)
+(setq eglot-sync-connect nil)
+(setq eglot-send-changes-idle-time 2)
+(setq flymake-no-changes-timeout 3)
+(add-to-list 'load-path "~/.emacs.d/eglot-booster/")
+(add-to-list 'exec-path "/remote/fmrndsrc1/sourabhr/files/tools/emacs-lsp-booster")
+(require 'eglot-booster)
+(eglot-booster-mode 1)
+; (use-package eglot-booster
+; 	:after eglot
+; 	:config	(eglot-booster-mode))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; To make evil <RET> work properly in XREF mode
+(add-hook 'xref--xref-buffer-mode-hook
+   (lambda ()
+     (define-key evil-normal-state-map (kbd "<RET>") 'xref-goto-xref)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -564,11 +633,14 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(custom-safe-themes
    '("7ec8fd456c0c117c99e3a3b16aaf09ed3fb91879f6601b1ea0eeaee9c6def5d9" "48042425e84cd92184837e01d0b4fe9f912d875c43021c3bcb7eeb51f1be5710" "34cf3305b35e3a8132a0b1bdf2c67623bc2cb05b125f8d7d26bd51fd16d547ec" "88f7ee5594021c60a4a6a1c275614103de8c1435d6d08cc58882f920e0cec65e" "e4a702e262c3e3501dfe25091621fe12cd63c7845221687e36a79e17cf3a67e0" "f828930c293178ba41ebfdec2154bfdb77cdf3df2157a316940860d7f51dda61" "e1da45d87a83acb558e69b90015f0821679716be79ecb76d635aafdca8f6ebd4" "09b833239444ac3230f591e35e3c28a4d78f1556b107bafe0eb32b5977204d93" "8dbbcb2b7ea7e7466ef575b60a92078359ac260c91fe908685b3983ab8e20e3f" "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(dabbrev-ignored-buffer-regexps '(".*\\.log"))
+ '(eglot-ignored-server-capabilities
+   '(:documentHighlightProvider :documentOnTypeFormattingProvider))
  '(exwm-floating-border-color "#191b20")
  '(fancy-dabbrev-no-expansion-for '(multiple-cursors-mode Shell-mode))
  '(fancy-dabbrev-no-preview-for '(iedit-mode isearch-mode multiple-cursors-mode Shell-mode))
  '(fci-rule-color "#5B6268")
  '(fido-mode nil)
+ '(gdb-many-windows t)
  '(global-auto-complete-mode nil)
  '(global-company-mode nil)
  '(global-display-line-numbers-mode t)
@@ -588,13 +660,13 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#3f444a"))
  '(objed-cursor-color "#ff6c6b")
  '(org-agenda-files
-   '("~/stars/non_determinism.org" "~/tasks.org" "~/stars/many_to_many_tech_talk.org" "~/stars/dpx_contributing_tasks.org" "~/stars/set_compare_rule.org" "~/stars/report_pre_svf_names.org" "~/stars/matching_issue.org"))
+   '("~/stars/bbox_matching_problem.org" "~/stars/report_pre_svf_names.org" "~/stars/clang.org" "~/stars/matching_regressions.org" "~/stars/ml_unit_test.org"))
  '(package-archives
    '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
      ("org" . "https://orgmode.org/elpa/")))
  '(package-selected-packages
-   '(doom-themes leuven-theme vterm corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
+   '(eglot-booster eglot yasnippet markdown-mode vterm-toggle org-superstar gnu-elpa-keyring-update doom-themes leuven-theme vterm corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
  '(pdf-view-midnight-colors '("#282828" . "#f2e5bc"))
  '(rustic-ansi-faces
    ["#282c34" "#ff6c6b" "#98be65" "#ECBE7B" "#51afef" "#c678dd" "#46D9FF" "#bbc2cf"])
@@ -631,6 +703,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  ;; If there is more than one, they won't work right.
  '(default ((t (:family "DejaVu Sans Mono" :foundry "PfEd" :slant normal :weight normal :height 120 :width normal))))
  '(cursor ((t nil)))
+ '(eglot-highlight-symbol-face ((t nil)))
  '(org-document-title ((t (:foreground "#c678dd" :weight bold :height 2.0 :width normal))))
  '(org-level-1 ((t (:inherit outline-1 :height 1.25))))
  '(org-level-2 ((t (:inherit outline-2 :height 1.1))))
