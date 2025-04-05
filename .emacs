@@ -40,7 +40,7 @@
 (evil-set-initial-state 'vterm-mode 'emacs)
 (evil-set-initial-state 'XREF 'emacs)
 (evil-set-initial-state 'gud-mode 'emacs)
-(evil-set-initial-state 'Shell-mode 'normal)
+(evil-set-initial-state 'comint-mode 'normal)
 
 ;; Evil packages
 (require 'evil-visualstar) ; To search selection with *
@@ -49,6 +49,7 @@
 ;; Evil keybindings
 (define-key evil-normal-state-map (kbd "C-r") 'isearch-backward)
 (define-key evil-normal-state-map (kbd "M-u") 'evil-redo)
+(define-key evil-normal-state-map (kbd "M-y") 'yank-pop)
 ;(define-key evil-normal-state-map (kbd "0") 'evil-first-non-blank)
 ;(define-key evil-normal-state-map (kbd "\)") 'evil-beginning-of-line)
 
@@ -95,6 +96,7 @@
 
 (define-key evil-normal-state-map (kbd "G") 'my/evil-goto-line)
 (define-key evil-motion-state-map (kbd "g g") 'my/evil-goto-first-line)
+(global-set-key (kbd "M-y") 'yank-pop)
 
 ;; Scroll half page instead of full page
 (autoload 'View-scroll-half-page-forward "view")
@@ -107,6 +109,19 @@
 ;; Show which function we are in
 (which-function-mode 1)
 (setq which-func-unknown "")
+
+; Winner mode for window configuration undo/redo
+(setq winner-dont-bind-my-keys t)    ; Prevent default key binds (C-c left/right)
+(global-set-key (kbd "C-c h")  'winner-undo)
+(global-set-key (kbd "C-c l") 'winner-redo)
+(winner-mode)
+
+; Enable dirtrack mode
+(dirtrack-mode 1)
+
+; Truncate shell buffers automatically
+(setq comint-buffer-maximum-size 16384)
+(add-hook 'comint-output-filter-functions 'comint-truncate-buffer)
 
 ;; World clocks
 (setq world-clock-list
@@ -224,8 +239,23 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (global-set-key (kbd "C-x b") 'my/buffer-list-and-switch)
 (global-set-key (kbd "C-x C-b") 'my/buffer-list-and-switch)
 
-;; Copy current file name to clipboard
-(defun my/copy-file-name-to-clipboard ()
+;; Split window - switch to other window by default
+(defun my/split-and-follow-horizontally ()
+  (interactive)
+  (split-window-below)
+  ;(balance-windows)
+  (other-window))
+(global-set-key (kbd "C-x 2") 'my/split-and-follow-horizontally)
+
+(defun my/split-and-follow-vertically ()
+  (interactive)
+  (split-window-right)
+  ;(balance-windows)
+  (other-window))
+(global-set-key (kbd "C-x 3") 'my/split-and-follow-vertically)
+
+;; Copy full path of current file to clipboard
+(defun my/copy-file-path-to-clipboard ()
   "Put the current file name on the clipboard"
   (interactive)
   (let ((filename (if (equal major-mode 'dired-mode)
@@ -236,6 +266,16 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
         (insert filename)
         (clipboard-kill-region (point-min) (point-max)))
       (message filename))))
+
+(defun my/copy-file-name-to-clipboard ()
+  "Copy the current buffer file name to the clipboard."
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-name))))
+    (when filename
+      (kill-new filename))
+    (message filename)))
 
 (global-set-key (kbd "C-x C-p") 'my/copy-file-name-to-clipboard)
 
@@ -272,6 +312,13 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
 (global-set-key (kbd "M-6") 'mode-line-other-buffer)
 (global-set-key (kbd "M-7") 'revert-buffer-no-confirm)
 (global-set-key (kbd "C-6") 'mode-line-other-buffer)
+
+;; Switch focus after splitting window
+(defadvice split-window (after split-window-after activate)
+  (other-window 1))
+
+; Switch to help buffers automatically
+(setq help-window-select t)
 
 ;; Show icomplete completions vertically
 (use-package icomplete-vertical
@@ -554,7 +601,7 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-one t)
+  ; (load-theme 'doom-one t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -615,6 +662,34 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
      (define-key evil-normal-state-map (kbd "<RET>") 'xref-goto-xref)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Copilot
+(use-package copilot-chat)
+(setq copilot-chat-backend 'curl)
+(setq copilot-chat-frontend 'org)
+
+(use-package copilot)
+
+;(add-hook 'prog-mode-hook 'copilot-mode)
+(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+(define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+(define-key copilot-completion-map (kbd "C-<tab>") 'copilot-accept-completion-by-word)
+(define-key copilot-completion-map (kbd "C-TAB") 'copilot-accept-completion-by-word)
+(define-key copilot-completion-map (kbd "M-n") 'copilot-next-completion)
+(define-key copilot-completion-map (kbd "M-p") 'copilot-previous-completion)
+(add-to-list 'copilot-major-mode-alist '("c++" . "h"))
+(add-to-list 'copilot-major-mode-alist '("c++" . "cxx"))
+(add-to-list 'copilot-major-mode-alist '("c" . "c"))
+(add-to-list 'copilot-major-mode-alist '("tcl" . "tcl"))
+(add-to-list 'copilot-major-mode-alist '("verilog" . "v"))
+(add-to-list 'copilot-major-mode-alist '("elisp" . "el"))
+(add-to-list 'copilot-major-mode-alist '("elisp" . "emacs"))
+(setq copilot-max-char -1)
+(add-to-list 'copilot-indentation-alist '(prog-mode . 4))
+(add-to-list 'copilot-indentation-alist '(org-mode . 2))
+(add-to-list 'copilot-indentation-alist '(text-mode . 4))
+(add-to-list 'copilot-indentation-alist '(emacs-lisp-mode . 2))
+(setq copilot-indent-offset-warning-disable t)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -625,13 +700,36 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
  '(ansi-color-names-vector
-   ["black" "red3" "ForestGreen" "yellow3" "blue" "magenta3" "DeepSkyBlue" "gray50"])
+   ["black" "red3" "ForestGreen" "yellow3" "blue" "magenta3"
+    "DeepSkyBlue" "gray50"])
  '(blink-cursor-mode nil)
  '(company-occurrence-weight-function 'company-occurrence-prefer-closest-above)
  '(company-selection-wrap-around t)
- '(custom-enabled-themes '(doom-one))
+ '(custom-enabled-themes '(doom-acario-dark))
  '(custom-safe-themes
-   '("7ec8fd456c0c117c99e3a3b16aaf09ed3fb91879f6601b1ea0eeaee9c6def5d9" "48042425e84cd92184837e01d0b4fe9f912d875c43021c3bcb7eeb51f1be5710" "34cf3305b35e3a8132a0b1bdf2c67623bc2cb05b125f8d7d26bd51fd16d547ec" "88f7ee5594021c60a4a6a1c275614103de8c1435d6d08cc58882f920e0cec65e" "e4a702e262c3e3501dfe25091621fe12cd63c7845221687e36a79e17cf3a67e0" "f828930c293178ba41ebfdec2154bfdb77cdf3df2157a316940860d7f51dda61" "e1da45d87a83acb558e69b90015f0821679716be79ecb76d635aafdca8f6ebd4" "09b833239444ac3230f591e35e3c28a4d78f1556b107bafe0eb32b5977204d93" "8dbbcb2b7ea7e7466ef575b60a92078359ac260c91fe908685b3983ab8e20e3f" "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
+   '("dccf4a8f1aaf5f24d2ab63af1aa75fd9d535c83377f8e26380162e888be0c6a9"
+     "da75eceab6bea9298e04ce5b4b07349f8c02da305734f7c0c8c6af7b5eaa9738"
+     "56044c5a9cc45b6ec45c0eb28df100d3f0a576f18eef33ff8ff5d32bac2d9700"
+     "f4d1b183465f2d29b7a2e9dbe87ccc20598e79738e5d29fc52ec8fb8c576fcfd"
+     "aec7b55f2a13307a55517fdf08438863d694550565dee23181d2ebd973ebd6b8"
+     "8d3ef5ff6273f2a552152c7febc40eabca26bae05bd12bc85062e2dc224cde9a"
+     "350fef8767e45b0f81dd54c986ee6854857f27067bac88d2b1c2a6fa7fecb522"
+     "3c08da65265d80a7c8fc99fe51df3697d0fa6786a58a477a1b22887b4f116f62"
+     "2b20b4633721cc23869499012a69894293d49e147feeb833663fdc968f240873"
+     "7ec8fd456c0c117c99e3a3b16aaf09ed3fb91879f6601b1ea0eeaee9c6def5d9"
+     "48042425e84cd92184837e01d0b4fe9f912d875c43021c3bcb7eeb51f1be5710"
+     "34cf3305b35e3a8132a0b1bdf2c67623bc2cb05b125f8d7d26bd51fd16d547ec"
+     "88f7ee5594021c60a4a6a1c275614103de8c1435d6d08cc58882f920e0cec65e"
+     "e4a702e262c3e3501dfe25091621fe12cd63c7845221687e36a79e17cf3a67e0"
+     "f828930c293178ba41ebfdec2154bfdb77cdf3df2157a316940860d7f51dda61"
+     "e1da45d87a83acb558e69b90015f0821679716be79ecb76d635aafdca8f6ebd4"
+     "09b833239444ac3230f591e35e3c28a4d78f1556b107bafe0eb32b5977204d93"
+     "8dbbcb2b7ea7e7466ef575b60a92078359ac260c91fe908685b3983ab8e20e3f"
+     "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a"
+     "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3"
+     "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd"
+     "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98"
+     default))
  '(dabbrev-ignored-buffer-regexps '(".*\\.log"))
  '(eglot-ignored-server-capabilities
    '(:documentHighlightProvider :documentOnTypeFormattingProvider))
@@ -645,10 +743,8 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(global-company-mode nil)
  '(global-display-line-numbers-mode t)
  '(highlight-tail-colors
-   ((("#333a38" "#99bb66" "green")
-     . 0)
-    (("#2b3d48" "#46D9FF" "brightcyan")
-     . 20)))
+   ((("#333a38" "#99bb66" "green") . 0)
+    (("#2b3d48" "#46D9FF" "brightcyan") . 20)))
  '(hl-sexp-background-color "#efebe9")
  '(icomplete-mode t)
  '(icomplete-show-matches-on-no-input t)
@@ -660,41 +756,40 @@ The same result can also be be achieved by \\[universal-argument] \\[unhighlight
  '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#3f444a"))
  '(objed-cursor-color "#ff6c6b")
  '(org-agenda-files
-   '("~/stars/bbox_matching_problem.org" "~/stars/report_pre_svf_names.org" "~/stars/clang.org" "~/stars/matching_regressions.org" "~/stars/ml_unit_test.org"))
+   '("~/stars/bbox_matching_problem.org"
+     "~/stars/report_pre_svf_names.org" "~/stars/clang.org"
+     "~/stars/matching_regressions.org" "~/stars/misc.org"
+     "~/stars/broken_regrs.org"
+     "~/stars/report_unmatched_inconsistency.org"
+     "~/stars/non_det_claudio.org"))
  '(package-archives
    '(("gnu" . "https://elpa.gnu.org/packages/")
      ("melpa" . "https://melpa.org/packages/")
      ("org" . "https://orgmode.org/elpa/")))
  '(package-selected-packages
-   '(eglot-booster eglot yasnippet markdown-mode vterm-toggle org-superstar gnu-elpa-keyring-update doom-themes leuven-theme vterm corfu use-package icomplete-vertical evil-visualstar evil auto-complete gruvbox-theme))
+   '(eglot-booster eglot yasnippet markdown-mode vterm-toggle
+                   org-superstar gnu-elpa-keyring-update doom-themes
+                   leuven-theme vterm corfu use-package
+                   icomplete-vertical evil-visualstar evil
+                   auto-complete gruvbox-theme))
  '(pdf-view-midnight-colors '("#282828" . "#f2e5bc"))
  '(rustic-ansi-faces
-   ["#282c34" "#ff6c6b" "#98be65" "#ECBE7B" "#51afef" "#c678dd" "#46D9FF" "#bbc2cf"])
+   ["#282c34" "#ff6c6b" "#98be65" "#ECBE7B" "#51afef" "#c678dd" "#46D9FF"
+    "#bbc2cf"])
  '(search-exit-option nil)
  '(shell-command-prompt-show-cwd t)
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(vc-annotate-background "#282c34")
  '(vc-annotate-color-map
-   (list
-    (cons 20 "#98be65")
-    (cons 40 "#b4be6c")
-    (cons 60 "#d0be73")
-    (cons 80 "#ECBE7B")
-    (cons 100 "#e6ab6a")
-    (cons 120 "#e09859")
-    (cons 140 "#da8548")
-    (cons 160 "#d38079")
-    (cons 180 "#cc7cab")
-    (cons 200 "#c678dd")
-    (cons 220 "#d974b7")
-    (cons 240 "#ec7091")
-    (cons 260 "#ff6c6b")
-    (cons 280 "#cf6162")
-    (cons 300 "#9f585a")
-    (cons 320 "#6f4e52")
-    (cons 340 "#5B6268")
-    (cons 360 "#5B6268")))
+   (list (cons 20 "#98be65") (cons 40 "#b4be6c") (cons 60 "#d0be73")
+         (cons 80 "#ECBE7B") (cons 100 "#e6ab6a") (cons 120 "#e09859")
+         (cons 140 "#da8548") (cons 160 "#d38079")
+         (cons 180 "#cc7cab") (cons 200 "#c678dd")
+         (cons 220 "#d974b7") (cons 240 "#ec7091")
+         (cons 260 "#ff6c6b") (cons 280 "#cf6162")
+         (cons 300 "#9f585a") (cons 320 "#6f4e52")
+         (cons 340 "#5B6268") (cons 360 "#5B6268")))
  '(vc-annotate-very-old-color nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
